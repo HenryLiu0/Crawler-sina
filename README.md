@@ -29,5 +29,28 @@ def getDetails(newsUrl):
     detail['commentsCount'] = getCommentsCount(newsUrl)
     return detail
 
-news = 'http://news.sina.com.cn/c/nd/2017-07-03/doc-ifyhrxtp6459083.shtml'
-getDetails(news)
+def parseListLink(url):
+    newsdetails = []
+    res = requests.get(url)
+    jd = json.loads(res.text.lstrip('  newsloadercallback(').rstrip(');'))
+    for ent in jd['result']['data']:
+        newsdetails.append(getDetails(ent['url']))
+    return newsdetails
+    
+url = 'http://api.roll.news.sina.com.cn/zt_list?channel=news&cat_1=gnxw&cat_2==gdxw1||=gatxw||=zs\
+-pl||=mtjj&level==1||=2&show_ext=1&show_all=1&show_num=22&tag=1&format=json&page={}'
+news_total = []
+for i in range(3):  #可以改变爬取页数
+    newsurl = url.format(i)
+    newsary = parseListLink(newsurl)
+    news_total.extend(newsary)
+    
+import pandas
+df = pandas.DataFrame(news_total)
+
+import sqlite3
+with sqlite3.connect('news.sqlite') as db:
+    df.to_sql('news', con = db)
+    
+with sqlite3.connect('news.sqlite') as db:
+    df2 = pandas.read_sql_query('SELECT * FROM news', con = db)
