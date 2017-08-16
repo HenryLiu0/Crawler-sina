@@ -1,6 +1,6 @@
 # Crawler-sina
 对 http://news.sina.com.cn/china/ 中新闻进行爬取
-
+```
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -54,3 +54,4 @@ with sqlite3.connect('news.sqlite') as db:
     
 with sqlite3.connect('news.sqlite') as db:
     df2 = pandas.read_sql_query('SELECT * FROM news', con = db)
+```
